@@ -1,0 +1,68 @@
+import sys
+import time
+import random
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import QTimer
+
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+
+# Başlangıç_Kod.py içindeki Ui_MainWindow sınıfını import et
+from Başlangıç_Kod import Ui_MainWindow  # Dosya adı ve sınıfın aynen böyle olmalı
+
+
+class TemperaturePlot(FigureCanvas):
+    def __init__(self, parent=None):
+        self.fig = Figure(figsize=(4, 3))
+        super().__init__(self.fig)
+        self.ax = self.fig.add_subplot(111)
+        self.ax.set_title("Sıcaklık (°C)")
+        self.ax.set_xlabel("Zaman (s)")
+        self.ax.set_ylabel("Sıcaklık")
+        self.ax.grid(True)
+        self.times = []
+        self.temps = []
+        self.start_time = time.time()
+
+    def update_plot(self, temp):
+        t = time.time() - self.start_time
+        self.times.append(t)
+        self.temps.append(temp)
+        if len(self.times) > 50:
+            self.times = self.times[-50:]
+            self.temps = self.temps[-50:]
+        self.ax.clear()
+        self.ax.plot(self.times, self.temps, color='orange')
+        self.ax.set_title("Sıcaklık (°C)")
+        self.ax.set_xlabel("Zaman (s)")
+        self.ax.set_ylabel("Sıcaklık")
+        self.ax.grid(True)
+        self.draw()
+
+
+class MainApp(QtWidgets.QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
+        # widget_Sicaklik içine matplotlib grafiği yerleştir
+        self.temp_plot = TemperaturePlot(self.widget_Sicaklik)
+        layout = QtWidgets.QVBoxLayout(self.widget_Sicaklik)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.temp_plot)
+
+        # Timer ile her saniye rastgele sıcaklık üret ve grafiği güncelle
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.read_temperature)
+        self.timer.start(1000)
+
+    def read_temperature(self):
+        temp = 20 + random.random() * 10  # 20-30 derece arası rastgele sıcaklık
+        self.temp_plot.update_plot(temp)
+
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    window = MainApp()
+    window.show()
+    sys.exit(app.exec_())

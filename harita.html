@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Konya Teknik Üniversitesi Haritası</title>
+  <meta charset="utf-8" />
+  <style>
+    #map { height: 100%; width: 100%; margin: 0; padding: 0; }
+    html, body { height: 100%; margin: 0; }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script>
+    // Konya Teknik Üniversitesi koordinatları
+    var initialLat = 37.8792;
+    var initialLon = 32.5015;
+
+    var map = L.map('map').setView([initialLat, initialLon], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Marker oluştur ve popup ile tam adı göster
+    var marker = L.marker([initialLat, initialLon]).addTo(map);
+    marker.bindPopup("<b>Konya Teknik Üniversitesi</b>").openPopup();
+
+    // Python'dan koordinat güncellemek için fonksiyon
+    function updateMarker(lat, lon) {
+      var newLatLng = new L.LatLng(lat, lon);
+      marker.setLatLng(newLatLng);
+      map.setView(newLatLng, 15);
+      marker.bindPopup("<b>Konya Teknik Üniversitesi</b>").openPopup();
+    }
+  </script>
+</body>
+</html>
